@@ -1,7 +1,5 @@
 Playwright E2E Test für Restaurant-Buchungsplattform
 
-Beschreibung
-
 Dieser automatisierte End-to-End-Test führt eine vollständige Veranstaltungserstellung auf einer Restaurant-Buchungsplattform durch:
 
 Login mit Testzugang
