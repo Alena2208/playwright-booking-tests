@@ -1,11 +1,9 @@
 import { test, expect } from '@playwright/test';
 import 'dotenv/config';
 
-test('успешное создание мероприятия', async ({ page }) => {
+test('erfolgreiche Erstellung einer Veranstaltung', async ({ page }) => {
   
-  // ============================================
-  // ПРОВЕРКА ПЕРЕМЕННЫХ ОКРУЖЕНИЯ
-  // ============================================
+  // PRÜFUNG DER UMGEBUNGSVARIABLEN
   
   const email = process.env.TEST_EMAIL;
   const password = process.env.TEST_PASSWORD;
@@ -13,76 +11,70 @@ test('успешное создание мероприятия', async ({ page }
   
   if (!email || !password || !baseUrl) {
     throw new Error(
-      'Missing environment variables. Please check your .env file:\n' +
+      'Fehlende Umgebungsvariablen. Bitte überprüfe die .env-Datei:\n' +
       '- TEST_URL\n' +
       '- TEST_EMAIL\n' +
       '- TEST_PASSWORD'
     );
   }
   
-  // ============================================
-  // АВТОРИЗАЦИЯ
-  // ============================================
+  // ANMELDUNG
   
   await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
   await page.fill('[name="email"]', email);
   await page.fill('[name="password"]', password);
-  await page.click('button:has-text("Войти")');
+  await page.click('button:has-text("Anmelden")');
   await expect(page).toHaveURL(/\/clients|\/dashboard|\//, { timeout: 10000 });
   
-  // ============================================
-  // ПЕРЕХОД К СОЗДАНИЮ
-  // ============================================
+  // ZUR ERSTELLUNG NAVIGIEREN
   
   await page.click('.btn.btn_wauto', { timeout: 10000 });
   
-  // 1. ЗАЛ
-  const zalPlaceholder = page.locator('#react-select-room_id-placeholder');
-  await zalPlaceholder.waitFor({ state: 'visible', timeout: 5000 });
-  await zalPlaceholder.click();
+  // 1. SAAL
+  const saalPlaceholder = page.locator('#react-select-room_id-placeholder');
+  await saalPlaceholder.waitFor({ state: 'visible', timeout: 5000 });
+  await saalPlaceholder.click();
   await page.waitForSelector('.react-select__menu', { timeout: 5000 });
   await page.locator('.react-select__option').first().click();
   
-  // 2. ДАТА
-  const dateLabel = page.locator('text="Дата"');
-  await dateLabel.locator('..').locator('input[type="text"]').click();
+  // 2. DATUM
+  const datumLabel = page.locator('text="Datum"');
+  await datumLabel.locator('..').locator('input[type="text"]').click();
   const modal = page.locator('.sm-modal-wrap:visible').first();
   await modal.waitFor({ state: 'visible', timeout: 5000 });
-  const availableDays = modal.locator('.react-datepicker__day:not(.partiallyRed):not(.disabled)');
-  await availableDays.first().click();
+  const verfuegbareTage = modal.locator('.react-datepicker__day:not(.partiallyRed):not(.disabled)');
+  await verfuegbareTage.first().click();
   
-  // 3. ВРЕМЯ
+  // 3. BEGINN
   await page.fill('[name="start_time"]', '12:00');
   await page.fill('[name="end_time"]', '14:00');
   
-  // 4. КОЛИЧЕСТВО ВЗРОСЛЫХ
+  // 4. ANZAHL ERWACHSENE
   await page.fill('[name="adult_count"]', '15');
   
-  // 5. ТИП МЕРОПРИЯТИЯ
-  await page.click('text="Тип мероприятия"');
+  // 5. VERANSTALTUNGSTYP
+  await page.click('text="Veranstaltungstyp"');
   await page.waitForSelector('.react-select__menu');
   await page.locator('.react-select__option').first().click();
   
-  // 6. ОТКУДА
-  await page.click('text="Откуда"');
+  // 6. QUELLE
+  await page.click('text="Woher"');
   await page.waitForSelector('.react-select__menu');
   await page.locator('.react-select__option').first().click();
   
-  // 7. ИМЯ
-  const eventName = `Playwright-Тест ${Date.now()}`;
+  // 7. NAME
+  const eventName = `Playwright-Test ${Date.now()}`;
   await page.fill('#__next input[type="name"]', eventName);
   
-  // 8. ТЕЛЕФОН
+  // 8. TELEFON
   const randomPhone = '7' + Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  const phoneField = page.locator('input[msg="Поле должно быть заполнено!"]');
-  await phoneField.waitFor({ state: 'visible', timeout: 5000 });
-  await phoneField.fill(randomPhone);
+  const telefonFeld = page.locator('input[msg="Dieses Feld muss ausgefüllt werden!"]');
+  await telefonFeld.waitFor({ state: 'visible', timeout: 5000 });
+  await telefonFeld.fill(randomPhone);
+
+  // ABSENDEN UND PRÜFEN
   
-  // ============================================
-  // ОТПРАВКА И ПРОВЕРКА
-  // ============================================
-  
-  await page.click('text="Рассчитать мероприятие"');
+  await page.click('text="Veranstaltung berechnen"');
   await expect(page).toHaveURL(/\/event\//, { timeout: 10000 });
   await expect(page.locator(`text="${eventName}"`)).toBeVisible({ timeout: 10000 });
 });
