@@ -23,7 +23,7 @@ test('erfolgreiche Erstellung einer Veranstaltung', async ({ page }) => {
   await page.goto(`${baseUrl}/login`, { waitUntil: 'networkidle' });
   await page.fill('[name="email"]', email);
   await page.fill('[name="password"]', password);
-  await page.click('button:has-text("Anmelden")');
+  await page.click('button:has-text("Войти")');
   await expect(page).toHaveURL(/\/clients|\/dashboard|\//, { timeout: 10000 });
   
   // ZUR ERSTELLUNG NAVIGIEREN
@@ -38,8 +38,8 @@ test('erfolgreiche Erstellung einer Veranstaltung', async ({ page }) => {
   await page.locator('.react-select__option').first().click();
   
   // 2. DATUM
-  const datumLabel = page.locator('text="Datum"');
-  await datumLabel.locator('..').locator('input[type="text"]').click();
+  await page.click('text="Дата"');
+  await page.locator('input[type="text"]').first().click();
   const modal = page.locator('.sm-modal-wrap:visible').first();
   await modal.waitFor({ state: 'visible', timeout: 5000 });
   const verfuegbareTage = modal.locator('.react-datepicker__day:not(.partiallyRed):not(.disabled)');
@@ -53,12 +53,12 @@ test('erfolgreiche Erstellung einer Veranstaltung', async ({ page }) => {
   await page.fill('[name="adult_count"]', '15');
   
   // 5. VERANSTALTUNGSTYP
-  await page.click('text="Veranstaltungstyp"');
+  await page.click('text="Тип мероприятия"');
   await page.waitForSelector('.react-select__menu');
   await page.locator('.react-select__option').first().click();
   
   // 6. QUELLE
-  await page.click('text="Woher"');
+  await page.click('text="Откуда"');
   await page.waitForSelector('.react-select__menu');
   await page.locator('.react-select__option').first().click();
   
@@ -68,13 +68,13 @@ test('erfolgreiche Erstellung einer Veranstaltung', async ({ page }) => {
   
   // 8. TELEFON
   const randomPhone = '7' + Math.floor(Math.random() * 10000000000).toString().padStart(10, '0');
-  const telefonFeld = page.locator('input[msg="Dieses Feld muss ausgefüllt werden!"]');
+  const telefonFeld = page.locator('input[msg="Поле должно быть заполнено!"]');
   await telefonFeld.waitFor({ state: 'visible', timeout: 5000 });
   await telefonFeld.fill(randomPhone);
-
+  
   // ABSENDEN UND PRÜFEN
   
-  await page.click('text="Veranstaltung berechnen"');
+  await page.click('text="Рассчитать мероприятие"');
   await expect(page).toHaveURL(/\/event\//, { timeout: 10000 });
   await expect(page.locator(`text="${eventName}"`)).toBeVisible({ timeout: 10000 });
 });
